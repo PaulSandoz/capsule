@@ -20,8 +20,9 @@ import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.capsule.util.iterator.EmptySupplierIterator;
 import io.usethesource.capsule.util.iterator.SupplierIterator;
 
-public abstract class AbstractSpecialisedImmutableMap<K, V>
-    implements io.usethesource.capsule.Map.Immutable<K, V>, java.lang.Cloneable, java.io.Serializable {
+public abstract sealed class AbstractSpecialisedImmutableMap<K, V>
+    implements io.usethesource.capsule.Map.Immutable<K, V>, java.io.Serializable
+    permits Map0, Map0.ref, Map1, Map1.ref, Map2, Map2.ref, Map3, Map3.ref, Map4, Map4.ref, Map5, Map5.ref {
 
   private static io.usethesource.capsule.Map.Immutable EMPTY_MAP = new Map0();
 
@@ -179,10 +180,10 @@ public abstract class AbstractSpecialisedImmutableMap<K, V>
     }
   }
 
-  @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
-  }
+//  @Override
+//  public Object clone() throws CloneNotSupportedException {
+//    return super.clone();
+//  }
 
   @Override
   public boolean isTransientSupported() {
@@ -191,7 +192,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V>
 }
 
 
-class MapEntry<K, V> implements java.util.Map.Entry<K, V>, java.lang.Cloneable, java.io.Serializable {
+inline class MapEntry<K, V> implements java.util.Map.Entry<K, V>, java.io.Serializable {
 
   private final K key1;
   private final V val1;
@@ -238,15 +239,15 @@ class MapEntry<K, V> implements java.util.Map.Entry<K, V>, java.lang.Cloneable, 
     return String.format("<%s, %s>", key1, val1);
   }
 
-  @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
-  }
+//  @Override
+//  public Object clone() throws CloneNotSupportedException {
+//    return super.clone();
+//  }
 
 }
 
 
-class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   Map0() {
 
@@ -347,7 +348,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 }
 
 
-class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   private final K key1;
   private final V val1;
@@ -532,7 +533,7 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 }
 
 
-class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   private final K key1;
   private final V val1;
@@ -754,7 +755,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 }
 
 
-class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   private final K key1;
   private final V val1;
@@ -1007,7 +1008,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 }
 
 
-class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   private final K key1;
   private final V val1;
@@ -1295,7 +1296,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 }
 
 
-class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+inline class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
   private final K key1;
   private final V val1;

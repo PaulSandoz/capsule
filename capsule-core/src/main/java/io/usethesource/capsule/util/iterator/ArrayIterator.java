@@ -10,7 +10,7 @@ package io.usethesource.capsule.util.iterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ArrayIterator<E> implements Iterator<E> {
+public final class ArrayIterator<E> implements Iterator<E> {
 
   final E[] values;
   final int end;

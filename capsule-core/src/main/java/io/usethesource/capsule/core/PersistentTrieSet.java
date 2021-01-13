@@ -31,7 +31,7 @@ import io.usethesource.capsule.core.trie.SetNode;
 import io.usethesource.capsule.core.trie.SetNodeResult;
 import io.usethesource.capsule.util.EqualityComparator;
 
-public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializable {
+public inline class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializable {
 
   private static final long serialVersionUID = 42L;
 
@@ -55,8 +55,9 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static final <K> Set.Immutable<K> of() {
-    return PersistentTrieSet.EMPTY_SET;
+    return (Set.Immutable<K>) PersistentTrieSet.EMPTY_SET;
   }
 
   public static final <K> Set.Immutable<K> of(K key0) {
@@ -82,7 +83,8 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
   }
 
   public static final <K> Set.Immutable<K> of(K... keys) {
-    Set.Immutable<K> result = PersistentTrieSet.EMPTY_SET;
+    @SuppressWarnings("unchecked")
+    Set.Immutable<K> result = (Set.Immutable<K>) PersistentTrieSet.EMPTY_SET;
 
     for (final K key : keys) {
       result = result.__insert(key);
@@ -511,9 +513,9 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
     }
   }
 
-  protected static abstract class AbstractSetNode<K> implements
-      SetNode<K, AbstractSetNode<K>>, Iterable<K>,
-      java.io.Serializable {
+  protected static sealed abstract class AbstractSetNode<K>
+          implements SetNode<K, AbstractSetNode<K>>, Iterable<K>, java.io.Serializable
+          permits CompactSetNode {
 
     private static final long serialVersionUID = 42L;
 
@@ -648,7 +650,9 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
 
   }
 
-  protected static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
+  protected static abstract sealed class CompactSetNode<K>
+          extends AbstractSetNode<K>
+          permits BitmapIndexedSetNode, BitmapIndexedSetNode.ref, HashCollisionSetNode, HashCollisionSetNode.ref {
 
     static final int HASH_CODE_LENGTH = 32;
 
@@ -989,37 +993,40 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
 
   }
 
-  protected static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
+//  protected static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
+//
+//    private final int nodeMap;
+//    private final int dataMap;
+//
+//    CompactMixedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
+//        final int dataMap) {
+//      this.nodeMap = nodeMap;
+//      this.dataMap = dataMap;
+//    }
+//
+//    @Override
+//    final int nodeMap() {
+//      return nodeMap;
+//    }
+//
+//    @Override
+//    final int dataMap() {
+//      return dataMap;
+//    }
+//
+//  }
 
+  private static inline class BitmapIndexedSetNode<K> extends CompactSetNode<K> {
     private final int nodeMap;
     private final int dataMap;
-
-    CompactMixedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-        final int dataMap) {
-      this.nodeMap = nodeMap;
-      this.dataMap = dataMap;
-    }
-
-    @Override
-    final int nodeMap() {
-      return nodeMap;
-    }
-
-    @Override
-    final int dataMap() {
-      return dataMap;
-    }
-
-  }
-
-  private static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
 
     transient final AtomicReference<Thread> mutator;
     final Object[] nodes;
 
     private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
         final int dataMap, final Object[] nodes) {
-      super(mutator, nodeMap, dataMap);
+      this.nodeMap = nodeMap;
+      this.dataMap = dataMap;
 
       this.mutator = mutator;
       this.nodes = nodes;
@@ -1037,6 +1044,16 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
 
         assert nodeInvariant();
       }
+    }
+
+    @Override
+    final int nodeMap() {
+      return nodeMap;
+    }
+
+    @Override
+    final int dataMap() {
+      return dataMap;
     }
 
     @Override
@@ -1344,7 +1361,7 @@ public class PersistentTrieSet<K> implements Set.Immutable<K>, java.io.Serializa
 
   }
 
-  private static final class HashCollisionSetNode<K> extends CompactSetNode<K> {
+  private static inline class HashCollisionSetNode<K> extends CompactSetNode<K> {
 
     private final K[] keys;
 

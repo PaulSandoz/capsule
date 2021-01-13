@@ -7,7 +7,7 @@
  */
 package io.usethesource.capsule.core.trie;
 
-public abstract class EitherSingletonOrCollection<T> {
+public abstract sealed class EitherSingletonOrCollection<T> {
 
   public enum Type {
     SINGLETON, COLLECTION
@@ -28,7 +28,7 @@ public abstract class EitherSingletonOrCollection<T> {
 
   abstract io.usethesource.capsule.Set.Immutable<T> getCollection();
 
-  private static final class SomeSingleton<T> extends EitherSingletonOrCollection<T> {
+  private static inline class SomeSingleton<T> extends EitherSingletonOrCollection<T> {
 
     private final T value;
 
@@ -53,7 +53,7 @@ public abstract class EitherSingletonOrCollection<T> {
     }
   }
 
-  private static final class SomeCollection<T> extends EitherSingletonOrCollection<T> {
+  private static inline class SomeCollection<T> extends EitherSingletonOrCollection<T> {
 
     private final io.usethesource.capsule.Set.Immutable<T> value;
 

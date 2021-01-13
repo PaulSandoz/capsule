@@ -17,7 +17,7 @@ import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.SetMultimap;
 
-public class PersistentBidirectionalTrieSetMultimap<K, V> implements
+public final class PersistentBidirectionalTrieSetMultimap<K, V> implements
     BinaryRelation.Immutable<K, V>, java.io.Serializable {
 
   private static final long serialVersionUID = 42L;
@@ -55,7 +55,7 @@ public class PersistentBidirectionalTrieSetMultimap<K, V> implements
       final BiFunction<K, V, ? extends SetMultimap.Immutable<K, V>> fwdMerger,
       final BiFunction<V, K, ? extends SetMultimap.Immutable<V, K>> bwdMerger) {
 
-    return new PersistentBidirectionalTrieSetMultimap(fwdMerger.apply(key, value),
+    return new PersistentBidirectionalTrieSetMultimap<>(fwdMerger.apply(key, value),
         bwdMerger.apply(value, key));
   }
 
@@ -64,7 +64,7 @@ public class PersistentBidirectionalTrieSetMultimap<K, V> implements
       final BiFunction<K, Set.Immutable<V>, ? extends SetMultimap.Immutable<K, V>> fwdMerger,
       final BiFunction<Set.Immutable<V>, K, ? extends SetMultimap.Immutable<V, K>> bwdMerger) {
 
-    return new PersistentBidirectionalTrieSetMultimap(fwdMerger.apply(key, values),
+    return new PersistentBidirectionalTrieSetMultimap<>(fwdMerger.apply(key, values),
         bwdMerger.apply(values, key));
   }
 

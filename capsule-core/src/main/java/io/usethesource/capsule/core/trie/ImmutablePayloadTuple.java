@@ -9,8 +9,8 @@ package io.usethesource.capsule.core.trie;
 
 import java.util.Objects;
 
-public final class ImmutablePayloadTuple<T> implements
-    Comparable<ImmutablePayloadTuple<T>>, java.io.Serializable {
+public inline class ImmutablePayloadTuple<T> implements
+    Comparable<ImmutablePayloadTuple.ref<T>>, java.io.Serializable {
 
   private static final long serialVersionUID = 42L;
 
@@ -35,7 +35,7 @@ public final class ImmutablePayloadTuple<T> implements
   }
 
   @Override
-  public int compareTo(ImmutablePayloadTuple<T> other) {
+  public int compareTo(ImmutablePayloadTuple.ref<T> other) {
     return hash - other.hash;
   }
 
@@ -56,6 +56,7 @@ public final class ImmutablePayloadTuple<T> implements
       return false;
     }
 
+    @SuppressWarnings("rawtypes")
     ImmutablePayloadTuple that = (ImmutablePayloadTuple) other;
 
     return hash == that.hash && Objects.equals(payload, that.payload);

@@ -9,7 +9,7 @@ package io.usethesource.capsule.util.iterator;
 
 import java.util.NoSuchElementException;
 
-public class ArrayKeyValueSupplierIterator<K, V> implements SupplierIterator<K, V> {
+public final class ArrayKeyValueSupplierIterator<K, V> implements SupplierIterator<K, V> {
 
   final Object[] values;
   final int end;

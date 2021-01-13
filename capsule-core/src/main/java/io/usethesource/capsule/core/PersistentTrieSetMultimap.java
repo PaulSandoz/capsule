@@ -58,7 +58,7 @@ import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutab
 /**
  * Persistent trie-based set multi-map implementing the HCHAMP encoding.
  */
-public class PersistentTrieSetMultimap<K, V> extends
+public final class PersistentTrieSetMultimap<K, V> extends
     AbstractPersistentTrieSetMultimap<K, V, io.usethesource.capsule.Set.Immutable<V>, AbstractSetMultimapNode<K, V>>
     implements java.io.Serializable {
 
@@ -112,17 +112,20 @@ public class PersistentTrieSetMultimap<K, V> extends
     return new PersistentTrieSetMultimap(cmp, rootNode, cachedSize, keySetHashCode, keySetSize);
   }
 
+  @SuppressWarnings("unchecked")
   public static final <K, V> SetMultimap.Immutable<K, V> of() {
-    return PersistentTrieSetMultimap.EMPTY_SETMULTIMAP;
+    return (SetMultimap.Immutable<K, V>) PersistentTrieSetMultimap.EMPTY_SETMULTIMAP;
   }
 
+  @SuppressWarnings("unchecked")
   public static final <K, V> SetMultimap.Immutable<K, V> of(EqualityComparator<Object> cmp) {
     // TODO: unify with `of()`
-    return new PersistentTrieSetMultimap(cmp, CompactSetMultimapNode.EMPTY_NODE, 0, 0, 0);
+    return new PersistentTrieSetMultimap<>(cmp, (CompactSetMultimapNode<K, V>) CompactSetMultimapNode.EMPTY_NODE, 0, 0, 0);
   }
 
   public static final <K, V> SetMultimap.Immutable<K, V> of(K key, V... values) {
-    SetMultimap.Immutable<K, V> result = PersistentTrieSetMultimap.EMPTY_SETMULTIMAP;
+    @SuppressWarnings("unchecked")
+    SetMultimap.Immutable<K, V> result = (SetMultimap.Immutable<K, V>) PersistentTrieSetMultimap.EMPTY_SETMULTIMAP;
 
     for (V value : values) {
       result = result.__insert(key, value);
@@ -206,9 +209,9 @@ public class PersistentTrieSetMultimap<K, V> extends
     return new TransientTrieSetMultimap<K, V>(this);
   }
 
-  protected static abstract class AbstractSetMultimapNode<K, V> implements
-      MultimapNode<K, V, io.usethesource.capsule.Set.Immutable<V>, AbstractSetMultimapNode<K, V>>,
-      java.io.Serializable {
+  protected static abstract sealed class AbstractSetMultimapNode<K, V> implements
+      MultimapNode<K, V, io.usethesource.capsule.Set.Immutable<V>, AbstractSetMultimapNode<K, V>>, java.io.Serializable
+      permits CompactSetMultimapNode {
 
     private static final long serialVersionUID = 42L;
 
@@ -408,8 +411,9 @@ public class PersistentTrieSetMultimap<K, V> extends
     // }
   }
 
-  protected static abstract class CompactSetMultimapNode<K, V>
-      extends AbstractSetMultimapNode<K, V> {
+  protected static abstract sealed class CompactSetMultimapNode<K, V>
+      extends AbstractSetMultimapNode<K, V>
+      permits AbstractHashCollisionNode, BitmapIndexedSetMultimapNode {
 
     static final int HASH_CODE_LENGTH = 32;
 
@@ -623,7 +627,7 @@ public class PersistentTrieSetMultimap<K, V> extends
       }
     }
 
-    static final CompactSetMultimapNode EMPTY_NODE;
+    static final CompactSetMultimapNode<?, ?> EMPTY_NODE;
 
     static {
       EMPTY_NODE = new BitmapIndexedSetMultimapNode<>(null, (0), (0), new Object[]{});
@@ -634,8 +638,9 @@ public class PersistentTrieSetMultimap<K, V> extends
       return new BitmapIndexedSetMultimapNode<>(mutator, nodeMap, dataMap, nodes);
     }
 
+    @SuppressWarnings("unchecked")
     static final <K, V> CompactSetMultimapNode<K, V> nodeOf(AtomicReference<Thread> mutator) {
-      return EMPTY_NODE;
+      return (CompactSetMultimapNode<K, V>) EMPTY_NODE;
     }
 
     static final <K, V> CompactSetMultimapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
@@ -1484,66 +1489,69 @@ public class PersistentTrieSetMultimap<K, V> extends
 
   }
 
-  protected static abstract class CompactMixedSetMultimapNode<K, V>
-      extends CompactSetMultimapNode<K, V> {
+//  protected static abstract class CompactMixedSetMultimapNode<K, V>
+//      extends CompactSetMultimapNode<K, V> {
+//
+//    private final int rawMap1; // former nodeMap
+//    private final int rawMap2; // former dataMap
+//
+//    CompactMixedSetMultimapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+//        final int dataMap) {
+//      this.rawMap1 = nodeMap;
+//      this.rawMap2 = dataMap;
+//    }
+//
+//    @Override
+//    public final int rawMap1() { // former nodeMap
+//      return rawMap1;
+//    }
+//
+//    @Override
+//    public final int rawMap2() { // former dataMap
+//      return rawMap2;
+//    }
+//
+//    @Override
+//    final int bitmap(int category) {
+//      switch (category) {
+//        case 0:
+//          return dataMap();
+//        case 1:
+//          return collMap();
+//        default:
+//          return 0;
+//      }
+//    }
+//
+//    @Override
+//    final int dataMap() {
+//      return rawMap2() ^ collMap();
+//    }
+//
+//    @Override
+//    final int collMap() {
+//      return rawMap1() & rawMap2();
+//    }
+//
+//    @Override
+//    final int nodeMap() {
+//      return rawMap1() ^ collMap();
+//    }
+//
+//  }
 
+  private static inline class BitmapIndexedSetMultimapNode<K, V>
+      extends CompactSetMultimapNode<K, V> {
     private final int rawMap1; // former nodeMap
     private final int rawMap2; // former dataMap
-
-    CompactMixedSetMultimapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-        final int dataMap) {
-      this.rawMap1 = nodeMap;
-      this.rawMap2 = dataMap;
-    }
-
-    @Override
-    public final int rawMap1() { // former nodeMap
-      return rawMap1;
-    }
-
-    @Override
-    public final int rawMap2() { // former dataMap
-      return rawMap2;
-    }
-
-    @Override
-    final int bitmap(int category) {
-      switch (category) {
-        case 0:
-          return dataMap();
-        case 1:
-          return collMap();
-        default:
-          return 0;
-      }
-    }
-
-    @Override
-    final int dataMap() {
-      return rawMap2() ^ collMap();
-    }
-
-    @Override
-    final int collMap() {
-      return rawMap1() & rawMap2();
-    }
-
-    @Override
-    final int nodeMap() {
-      return rawMap1() ^ collMap();
-    }
-
-  }
-
-  private static final class BitmapIndexedSetMultimapNode<K, V>
-      extends CompactMixedSetMultimapNode<K, V> {
 
     transient final AtomicReference<Thread> mutator;
     final Object[] nodes;
 
     private BitmapIndexedSetMultimapNode(final AtomicReference<Thread> mutator, final int rawMap1,
         final int rawMap2, final Object[] nodes) {
-      super(mutator, rawMap1, rawMap2);
+      this.rawMap1 = rawMap1;
+      this.rawMap2 = rawMap2;
 
       this.mutator = mutator;
       this.nodes = nodes;
@@ -1592,6 +1600,43 @@ public class PersistentTrieSetMultimap<K, V> extends
       }
 
       assert nodeInvariant();
+    }
+
+    @Override
+    public final int rawMap1() { // former nodeMap
+      return rawMap1;
+    }
+
+    @Override
+    public final int rawMap2() { // former dataMap
+      return rawMap2;
+    }
+
+    @Override
+    final int bitmap(int category) {
+      switch (category) {
+        case 0:
+          return dataMap();
+        case 1:
+          return collMap();
+        default:
+          return 0;
+      }
+    }
+
+    @Override
+    final int dataMap() {
+      return rawMap2() ^ collMap();
+    }
+
+    @Override
+    final int collMap() {
+      return rawMap1() & rawMap2();
+    }
+
+    @Override
+    final int nodeMap() {
+      return rawMap1() ^ collMap();
     }
 
     @Override
@@ -2126,8 +2171,9 @@ public class PersistentTrieSetMultimap<K, V> extends
 
   }
 
-  private static abstract class AbstractHashCollisionNode<K, V>
-      extends CompactSetMultimapNode<K, V> {
+  private static abstract sealed class AbstractHashCollisionNode<K, V>
+      extends CompactSetMultimapNode<K, V>
+      permits HashCollisionNode {
 
     static final <K, V, VS extends io.usethesource.capsule.Set.Immutable<V>> AbstractHashCollisionNode<K, V> of(
         final int hash, final K key0, final VS valColl0, final K key1, final VS valColl1) {
@@ -2275,7 +2321,7 @@ public class PersistentTrieSetMultimap<K, V> extends
     }
   }
 
-  private static final class HashCollisionNode<K, V> extends AbstractHashCollisionNode<K, V> {
+  private static inline class HashCollisionNode<K, V> extends AbstractHashCollisionNode<K, V> {
 
     private final int hash;
     private final List<Map.Entry<K, io.usethesource.capsule.Set.Immutable<V>>> collisionContent;

@@ -9,7 +9,7 @@ package io.usethesource.capsule.util.iterator;
 
 import java.util.NoSuchElementException;
 
-public class EmptySupplierIterator<K, V> implements SupplierIterator<K, V> {
+public inline class EmptySupplierIterator<K, V> implements SupplierIterator<K, V> {
 
   private static final SupplierIterator EMPTY_ITERATOR = new EmptySupplierIterator();
 

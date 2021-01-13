@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class DefaultCollector<T, A, R> implements Collector<T, A, R> {
+public inline class DefaultCollector<T, A, R> implements Collector<T, A, R> {
   private final Supplier<A> supplier;
   private final BiConsumer<A, T> accumulator;
   private final BinaryOperator<A> combiner;

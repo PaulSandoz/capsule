@@ -32,7 +32,7 @@ import io.usethesource.capsule.util.EqualityComparator;
 
 import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.entryOf;
 
-public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immutable<K, V>,
+public inline class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immutable<K, V>,
     java.io.Serializable {
 
   private static final long serialVersionUID = 42L;
@@ -57,8 +57,9 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static final <K, V> io.usethesource.capsule.Map.Immutable<K, V> of() {
-    return PersistentTrieMap.EMPTY_MAP;
+    return (io.usethesource.capsule.Map.Immutable<K, V>) PersistentTrieMap.EMPTY_MAP;
   }
 
   public static final <K, V> io.usethesource.capsule.Map.Immutable<K, V> of(
@@ -67,7 +68,8 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
       throw new IllegalArgumentException("Length of argument list is uneven: no key/value pairs.");
     }
 
-    io.usethesource.capsule.Map.Immutable<K, V> result = PersistentTrieMap.EMPTY_MAP;
+    @SuppressWarnings("unchecked")
+    io.usethesource.capsule.Map.Immutable<K, V> result = (io.usethesource.capsule.Map.Immutable<K, V>) PersistentTrieMap.EMPTY_MAP;
 
     for (int i = 0; i < keyValuePairs.length; i += 2) {
       final K key = (K) keyValuePairs[i];
@@ -603,9 +605,10 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
   }
 
   // TODO: support {@code Iterable} interface like AbstractSetNode
-  protected static abstract class AbstractMapNode<K, V> implements
-      MapNode<K, V, AbstractMapNode<K, V>>,
-      java.io.Serializable {
+  protected static abstract sealed class AbstractMapNode<K, V>
+          implements MapNode<K, V, AbstractMapNode<K, V>>, java.io.Serializable
+          permits CompactMapNode
+  {
 
     private static final long serialVersionUID = 42L;
 
@@ -732,7 +735,8 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
     }
   }
 
-  protected static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
+  protected static abstract sealed class CompactMapNode<K, V> extends AbstractMapNode<K, V>
+          permits BitmapIndexedMapNode, BitmapIndexedMapNode.ref, HashCollisionMapNode, HashCollisionMapNode.ref {
 
     static final int HASH_CODE_LENGTH = 32;
 
@@ -1068,37 +1072,41 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
 
   }
 
-  protected static abstract class CompactMixedMapNode<K, V> extends CompactMapNode<K, V> {
+//  protected static abstract class CompactMixedMapNode<K, V> extends CompactMapNode<K, V> {
+//
+//    private final int nodeMap;
+//    private final int dataMap;
+//
+//    CompactMixedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+//        final int dataMap) {
+//      this.nodeMap = nodeMap;
+//      this.dataMap = dataMap;
+//    }
+//
+//    @Override
+//    public int nodeMap() {
+//      return nodeMap;
+//    }
+//
+//    @Override
+//    public int dataMap() {
+//      return dataMap;
+//    }
+//
+//  }
+
+  private static inline class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
 
     private final int nodeMap;
     private final int dataMap;
-
-    CompactMixedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-        final int dataMap) {
-      this.nodeMap = nodeMap;
-      this.dataMap = dataMap;
-    }
-
-    @Override
-    public int nodeMap() {
-      return nodeMap;
-    }
-
-    @Override
-    public int dataMap() {
-      return dataMap;
-    }
-
-  }
-
-  private static final class BitmapIndexedMapNode<K, V> extends CompactMixedMapNode<K, V> {
 
     transient final AtomicReference<Thread> mutator;
     final Object[] nodes;
 
     private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
         final int dataMap, final Object[] nodes) {
-      super(mutator, nodeMap, dataMap);
+      this.nodeMap = nodeMap;
+      this.dataMap = dataMap;
 
       this.mutator = mutator;
       this.nodes = nodes;
@@ -1116,6 +1124,16 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
 
         assert nodeInvariant();
       }
+    }
+
+    @Override
+    public int nodeMap() {
+      return nodeMap;
+    }
+
+    @Override
+    public int dataMap() {
+      return dataMap;
     }
 
     @Override
@@ -1419,7 +1437,7 @@ public class PersistentTrieMap<K, V> implements io.usethesource.capsule.Map.Immu
 
   }
 
-  private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
+  private static inline class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
 
     private final K[] keys;
     private final V[] vals;

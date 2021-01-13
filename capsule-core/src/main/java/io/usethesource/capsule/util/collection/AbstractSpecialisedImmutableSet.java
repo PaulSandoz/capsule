@@ -17,7 +17,7 @@ import io.usethesource.capsule.util.EqualityComparator;
 import io.usethesource.capsule.util.iterator.EmptySupplierIterator;
 import io.usethesource.capsule.util.iterator.SupplierIterator;
 
-public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutableSet<K>
+public abstract sealed class AbstractSpecialisedImmutableSet<K> extends AbstractImmutableSet<K>
     implements io.usethesource.capsule.Set.Immutable<K>, java.lang.Cloneable, java.io.Serializable {
 
   private static io.usethesource.capsule.Set.Immutable EMPTY_SET = new Set0();
@@ -224,7 +224,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 }
 
 
-class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 
   Set0() {
 
@@ -300,7 +300,7 @@ class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 }
 
 
-class Set1<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set1<K> extends AbstractSpecialisedImmutableSet<K> {
 
   private final K key1;
 
@@ -450,7 +450,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> {
 }
 
 
-class Set2<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set2<K> extends AbstractSpecialisedImmutableSet<K> {
 
   private final K key1;
   private final K key2;
@@ -627,7 +627,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> {
 }
 
 
-class Set3<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set3<K> extends AbstractSpecialisedImmutableSet<K> {
 
   private final K key1;
   private final K key2;
@@ -827,7 +827,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> {
 }
 
 
-class Set4<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set4<K> extends AbstractSpecialisedImmutableSet<K> {
 
   private final K key1;
   private final K key2;
@@ -1052,7 +1052,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> {
 }
 
 
-class Set5<K> extends AbstractSpecialisedImmutableSet<K> {
+inline class Set5<K> extends AbstractSpecialisedImmutableSet<K> {
 
   private final K key1;
   private final K key2;
